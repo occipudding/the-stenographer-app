@@ -1,0 +1,9 @@
+@font-face {
+  font-family: MarsdenCondensedHeavy;
+  src: url(./fonts/MarsdenCondensedHeavy.otf)
+}
+
+body {
+  background-image: url(./images/cocktail_napkin.jpg);
+  font-family: MarsdenCondensedHeavy;
+}
