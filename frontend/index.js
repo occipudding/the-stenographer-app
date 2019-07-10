@@ -3,6 +3,7 @@ const main = document.querySelector("#main");
 const sidebar = document.querySelector("#sidebar");
 const usernameContainer = document.querySelector("#username-container");
 const topicsList = document.querySelector("#topics-list");
+const notesContainer = document.querySelector("#notes-container");
 
 // FETCHES
 fetch('http://localhost:3000/users').then(resp => resp.json()).then(users => {
@@ -22,6 +23,8 @@ sidebar.addEventListener('mouseleave', e => {
   main.style.marginLeft = "0";
 });
 
+sidebar.addEventListener('click', addNotesToDOM);
+
 // FUNCTIONS
 function addTopicsToSidebar(topics) {
   topicsList.innerHTML = '';
@@ -38,4 +41,19 @@ function addTopicsToSidebar(topics) {
       <li id="topic-${topic.id}" class="topic-item sidebar-text" title="${tagsString}">${topic.title}</li>
     `
   });
+}
+
+function addNotesToDOM(e) {
+  const topicNotes = [];
+  if(e.target.className.includes('topic-item')) {
+    notesContainer.innerHTML = '';
+    fetch(`http://localhost:3000/notes`).then(resp => resp.json()).then(notes => {
+      const filteredNotes = notes.filter(note => note.topic_id == +e.target.id.split('-')[1]);
+      filteredNotes.forEach(note => {
+        notesContainer.innerHTML += `
+          <li>${note.content}</li>
+        `
+      })
+    });
+  }
 }
