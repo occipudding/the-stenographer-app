@@ -39,12 +39,17 @@ body {
   padding: 20px;
 }
 
-#username-container {
-  font-size: 20px;
-  color: #939393;
-}
-
 #topics-header {
   font-size: 36.66px;
   color: #959595;
+}
+
+#new-topic {
+  font-size: 15px;
+  color: #939393;
+}
+
+#username-container {
+  font-size: 20px;
+  color: #919191;
 }
