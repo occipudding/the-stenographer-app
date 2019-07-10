@@ -12,6 +12,8 @@ User.destroy_all
   User.create(name: Faker::Name.name)
 end
 
+# User.create(name: 'lochness')
+
 # TOPICS
 # topic_1 = Topic.create(title: 'Science', tags: ['science', 'biology', 'chemistry'], user: user_1)
 # topic_2 = Topic.create(title: 'Sports', tags: ['balls', 'sweaty dudes', 'eating nuts', 'CTE'], user: user_3)
