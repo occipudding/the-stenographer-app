@@ -18,10 +18,14 @@ end
 # topic_3 = Topic.create(title: 'Music', tags: ['polyrhythms', 'polytonality', 'microtonality', 'timbre'], user: user_2)
 50.times do
   arr = []
-  Topic.create(title: Faker::Hipster.word.capitalize, tags: Random.new.rand(0..10).times{|| arr << Faker::Hipster.word}, user: User.all.sample)
+  Random.new.rand(0..10).times{|| arr << Faker::Hipster.word}
+  Topic.create(title: Faker::Hipster.word.capitalize, tags: arr, user: User.all.sample)
 end
 
 # NOTES
 50.times do
-  Note.create(content: Faker::Hipster.sentence, topic_id: Topic.all.sample.id)
+  Note.create(content: Faker::Hipster.sentence, topic: Topic.all.sample)
 end
+
+Note.all.each {|note| note.update(ancestry: Note.all.sample.id)}
+# random ancestry number = Note.all.map{|note| note.id}.sample
