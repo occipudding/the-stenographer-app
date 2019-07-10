@@ -12,10 +12,18 @@ const modal = document.querySelector('#modal')
 const closeBtn = document.querySelector(".close-btn")
 const modalForm = document.querySelector("#modal-form")
 
+let currentUser = ""
+
 // ------------------- FETCHES -------------------------------
 fetch('http://localhost:3000/users').then(resp => resp.json()).then(users => {
   usernameContainer.innerText = users[Math.floor(Math.random() * users.length)].name;
 });
+
+function getOneUser(userId){
+  fetch(`http://localhost:3000/users/${userId}`)
+  .then(res => res.json())
+  .then(console.log)
+}
 
 fetch('http://localhost:3000/topics').then(resp => resp.json()).then(addTopicsToSidebar);
 
@@ -51,6 +59,8 @@ sidebar.addEventListener('mouseleave', e => {
   main.style.marginLeft = "0";
 });
 
+document.addEventListener("DOMContentLoaded", )
+
 sidebar.addEventListener('click', addNotesToDOM);
 notesContainer.addEventListener('click', noteClickHandler);
 
@@ -70,7 +80,6 @@ window.addEventListener('click', e => {
 })
 
 // modal form events
-
 modalForm.addEventListener('submit', postTopic)
 
 // ----------------------- FUNCTIONS -----------------------------
@@ -98,7 +107,6 @@ function newTopicToSideBar(topic) {
   `
   modalForm.reset()
   modal.style.display = "none"
-  console.log('done')
 
 }
 
