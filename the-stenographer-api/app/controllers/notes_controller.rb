@@ -14,8 +14,17 @@ class NotesController < ApplicationController
     )
   end
 
+  def new
+    note = Note.new
+  end
+
   def create
-    #form information
+    note = Note.create(note_params)
+    if note.valid?
+      render json: note.to_json(
+        only: [:content, :topic_id, :ancestry]
+      )
+    end
   end
 
   def update
@@ -25,6 +34,12 @@ class NotesController < ApplicationController
   def destroy
     note = Note.find(params[:id])
     note.destroy
+  end
+
+  private
+
+  def note_params
+    params.require(:note).permit(:content, :topic_id, :ancestry)
   end
 
 end
