@@ -103,15 +103,19 @@ function newTopicToSideBar(topic) {
 }
 
 function addNotesToDOM(e) {
-  const topicNotes = [];
   currentTopic = +e.target.id.split('-')[1];
   if(e.target.className.includes('topic-item')) {
     notesContainer.innerHTML = '';
     fetch(`http://localhost:3000/notes`).then(resp => resp.json()).then(notes => {
       const filteredNotes = notes.filter(note => note.topic_id == +e.target.id.split('-')[1]);
-      filteredNotes.forEach(note => {
-        addNoteToDOM(notesContainer, note);
-        // console.log(note);
+      console.log(filteredNotes);
+      filteredNotes.sort((a,b) => a.id - b.id).forEach(note => {
+        if(!note.ancestry) {
+          addNoteToDOM(notesContainer, note)
+        } else {
+          const parentContainer = document.querySelector(`li[id="${note.ancestry.includes('/') ? +note.ancestry.split('/')[note.ancestry.split('/').length - 1] : +note.ancestry}"]`);
+          addNoteToDOM(parentContainer, note);
+        }
       })
     });
   }
@@ -137,15 +141,19 @@ function noteClickHandler(e) {
           ancestry: e.target.parentNode.tagName === 'LI' ? (e.target.parentNode.ancestry ? e.target.parentNode.ancestry + '/' + e.target.parentNode.id : e.target.parentNode.id.toString()) : null
         })
       }).then(resp => resp.json()).then(data => {
+        console.log(data.id);
         addNoteToDOM(e.target.parentNode, data)
         e.target.parentNode.removeChild(curForm);
-        // console.log(e.target.parentNode);
       })
-      // console.log(e.target.parentNode.ancestry);
       curForm.reset();
     });
   }
-  if(e.target.className.includes('remove-note')) console.log('rmv note');
+  if(e.target.className.includes('remove-note')) {
+    fetch(`http://localhost:3000/notes/${e.target.parentNode.id}`, {
+      method: 'delete'
+    })
+    e.target.parentNode.parentNode.removeChild(e.target.parentNode);
+  }
 }
 
 function addNoteToDOM(container, note) {

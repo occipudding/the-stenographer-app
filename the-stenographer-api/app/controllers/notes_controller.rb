@@ -22,7 +22,7 @@ class NotesController < ApplicationController
     note = Note.create(note_params)
     if note.valid?
       render json: note.to_json(
-        only: [:content, :topic_id, :ancestry]
+        only: [:id, :content, :topic_id, :ancestry]
       )
     end
   end
@@ -39,7 +39,7 @@ class NotesController < ApplicationController
   private
 
   def note_params
-    params.require(:note).permit(:content, :topic_id, :ancestry)
+    params.require(:note).permit(:id, :content, :topic_id, :ancestry)
   end
 
 end
