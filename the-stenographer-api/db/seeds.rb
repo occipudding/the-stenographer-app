@@ -27,5 +27,5 @@ end
   Note.create(content: Faker::Hipster.sentence, topic: Topic.all.sample)
 end
 
-Note.all.each {|note| note.update(ancestry: Note.all.sample.id)}
+# Note.all.each {|note| note.update(ancestry: Note.all.sample.id)}
 # random ancestry number = Note.all.map{|note| note.id}.sample
