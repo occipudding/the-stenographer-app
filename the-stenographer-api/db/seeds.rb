@@ -19,7 +19,7 @@ end
 50.times do
   arr = []
   Random.new.rand(0..10).times{|| arr << Faker::Hipster.word}
-  Topic.create(title: Faker::Hipster.word.capitalize, tags: arr, user: User.all.sample)
+  Topic.create(title: Faker::Hipster.word.capitalize, tags: [*arr], user: User.all.sample)
 end
 
 # NOTES
