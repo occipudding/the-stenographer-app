@@ -9,7 +9,10 @@
     <div id="sidebar" class="sidebar">
       <div id="username-container" class="sidebar-text"></div><br>
       <div id="topics-header" class="sidebar-text">TOPICS</div>
+
       <a href="#" id="new-topic" class="sidebar-text">Create A New Topic</a>
+
+
       <ul id="topics-list">
 
       </ul>
@@ -18,7 +21,38 @@
       <h1 style="text-align:center;font-size:45px;">Stenographer</h1>
       <ul id="notes-container">
 
+
       </ul>
+
+      <div id="modal" class="modal">
+        <div class="modal-header">
+          <span class="close-btn">&times;</span>
+          <!-- <h1>I am the Header</h1> -->
+        </div>
+        <div class="modal-form">
+          <form id="modal-form">
+            <fieldset>
+              <legend>New Topic</legend>
+              <br><br>
+              <p>
+            <label for="topic-title">topic title</label>
+            <input id="title-input" type="text" id="topic-title" name="topic-title" size="40">
+            </p>
+            <br>
+            <p>
+            <label for="topic-tags">tags</label>
+            <input id="tags-input" type="text" id="topic-tags" name="topic-tags" size="40">
+          </p>
+            <br><br>
+            <input type="submit" value="Submit">
+            </fieldset>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <!-- <h2>I am the Footer</h2> -->
+        </div>
+      </div>
+
     </div>
     <script src="index.js"></script>
   </body>

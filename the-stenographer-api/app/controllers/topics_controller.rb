@@ -15,7 +15,12 @@ class TopicsController < ApplicationController
   end
 
   def create
-    #form information
+    topic = Topic.create(topic_params)
+    if topic.valid?
+      render json: topic.to_json(
+        only: [:id, :title, :tags, :user_id]
+      )
+    end
   end
 
   def update
@@ -25,6 +30,24 @@ class TopicsController < ApplicationController
   def destroy
     note = Note.find(params[:id])
     note.destroy
+  end
+
+  private
+
+  def topic_params
+    {
+      title: permit_the_params[:title],
+      tags: convert_tags_params(permit_the_params[:tags]),
+      user_id: User.all.sample.id #change this to current user
+    }
+  end
+
+  def permit_the_params
+    params.require(:topic).permit(:title,:user_id,:tags)
+  end
+
+  def convert_tags_params(string)
+    string.split(/\s*,\s*/)
   end
 
 end
