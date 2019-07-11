@@ -251,12 +251,16 @@ function addNoteToDOM(container, note) {
 }
 
   function addNoteFormToDOM(noteLi) {
-    noteLi.innerHTML += `
-      <form>
-        <input id="new-note-text" type="text">
-        <input type="submit" name="submit">
-      </form>
-    `
+    const form = document.createElement('form');
+    const newNoteText = document.createElement('input');
+    const submit = document.createElement('input');
+    newNoteText.type = 'text';
+    newNoteText.id = 'new-note-text';
+    submit.type = 'submit';
+    submit.name = 'submit';
+    form.append(newNoteText);
+    form.append(submit);
+    noteLi.insertBefore(form, noteLi.querySelectorAll('ul')[0]);
   }
 
 }
