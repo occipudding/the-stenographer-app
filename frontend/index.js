@@ -59,8 +59,6 @@ sidebar.addEventListener('mouseleave', e => {
   main.style.marginLeft = "0";
 });
 
-document.addEventListener("DOMContentLoaded", )
-
 sidebar.addEventListener('click', addNotesToDOM);
 notesContainer.addEventListener('click', noteClickHandler);
 
@@ -112,8 +110,12 @@ function newTopicToSideBar(topic) {
 
 function addNotesToDOM(e) {
   currentTopic = +e.target.id.split('-')[1];
+  document.querySelector('h1').innerText = e.target.innerText;
+  // console.log(e.target.innerText);
   if(e.target.className.includes('topic-item')) {
-    notesContainer.innerHTML = '';
+    notesContainer.innerHTML = `
+      <a class="add-note add-child-note" style="font-size: 25px;" title="Add a child note">+</a>
+    `;
     fetch(`http://localhost:3000/notes`).then(resp => resp.json()).then(notes => {
       const filteredNotes = notes.filter(note => note.topic_id == +e.target.id.split('-')[1]);
       console.log(filteredNotes);
@@ -149,15 +151,16 @@ function noteClickHandler(e) {
           ancestry: e.target.parentNode.tagName === 'LI' ? (e.target.parentNode.ancestry ? e.target.parentNode.ancestry + '/' + e.target.parentNode.id : e.target.parentNode.id.toString()) : null
         })
       }).then(resp => resp.json()).then(data => {
-        console.log(data.id);
         addNoteToDOM(e.target.parentNode, data)
-        e.target.parentNode.removeChild(curForm);
+        console.log(e.target.parentNode);
+        !!e.target.parentNode ? e.target.parentNode.removeChild(curForm) : document.querySelector('#new-top-level-note').removeChild(curForm);
       })
       curForm.reset();
     });
   }
   if(e.target.className.includes('remove-note')) {
-    fetch(`http://localhost:3000/notes/${e.target.parentNode.id}`, {
+    const noteId = e.target.parentNode.id;
+    fetch(`http://localhost:3000/notes/${noteId}`, {
       method: 'delete'
     })
     e.target.parentNode.parentNode.removeChild(e.target.parentNode);
