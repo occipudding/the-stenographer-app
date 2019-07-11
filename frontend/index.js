@@ -229,6 +229,7 @@ function deleteNote(e) {
     method: 'delete'
     });
   e.target.parentNode.parentNode.removeChild(e.target.parentNode);
+  console.log(note);
 })
   fetch(`http://localhost:3000/notes/${noteId}`, {
     method: 'delete'
@@ -244,7 +245,7 @@ function noteClickHandler(e) {
 
 function addNoteToDOM(container, note) {
   const newNoteHTML = `
-    <li id=${note.id} title="Created by: someuser" ancestry=${note.ancestry}>${note.content}&nbsp;&nbsp;&nbsp;&nbsp;<a class="add-note add-child-note" style="font-size: 25px;" title="Add a child note">+</a>&nbsp;&nbsp;&nbsp;&nbsp;<a class="remove-note" style="font-size: 25px;" title="Delete this note and all children">-</a></li>
+    <li id=${note.id} title="Created by: ${usernameContainer.innerText}" ancestry=${note.ancestry}>${note.content}&nbsp;&nbsp;&nbsp;&nbsp;<a class="add-note add-child-note" style="font-size: 25px;" title="Add a child note">+</a>&nbsp;&nbsp;&nbsp;&nbsp;<a class="remove-note" style="font-size: 25px;" title="Delete this note and all children">-</a></li>
     `
   if(container.tagName === 'LI') {
     const nestedUl = document.createElement('ul');
