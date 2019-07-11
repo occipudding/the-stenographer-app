@@ -142,7 +142,7 @@ function postNote(e, curForm) {
     body: JSON.stringify({
       content: e.target.querySelector("#new-note-text").value,
       topic_id: currentTopic,
-      ancestry: e.target.parentNode.tagName === 'LI' ? (/\d+/.test(e.target.parentNode.getAttribute('ancestry')) ? e.target.parentNode.ancestry + '/' + e.target.parentNode.id : e.target.parentNode.id.toString()) : null
+      ancestry: e.target.parentNode.tagName === 'LI' ? (/\d+/.test(e.target.parentNode.getAttribute('ancestry')) ? e.target.parentNode.getAttribute('ancestry') + '/' + e.target.parentNode.id : e.target.parentNode.id.toString()) : null
     })
   }).then(resp => resp.json()).then(data => {
     addNoteToDOM(e.target.parentNode, data)
@@ -166,11 +166,16 @@ function addChildNote(e) {
 function deleteNote(e) {
   const noteId = e.target.parentNode.id;
   const noteTree = document.querySelectorAll(`li[ancestry*="${noteId}"]`);
-  noteTree.forEach(note => console.log(note))
-  // fetch(`http://localhost:3000/notes/${noteId}`, {
-  //   method: 'delete'
-  // })
-  // e.target.parentNode.parentNode.removeChild(e.target.parentNode);
+  noteTree.forEach(note => {
+    fetch(`http://localhost:3000/notes/${note.id}`, {
+    method: 'delete'
+    });
+  e.target.parentNode.parentNode.removeChild(e.target.parentNode);
+})
+  fetch(`http://localhost:3000/notes/${noteId}`, {
+    method: 'delete'
+  })
+  e.target.parentNode.parentNode.removeChild(e.target.parentNode);
 }
 
 function noteClickHandler(e) {
