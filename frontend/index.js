@@ -97,7 +97,19 @@ function loggedIn() {
       modal.style.display = "none"
     })
 
-  }
+    function fetchNotes(e) {
+      fetch(`http://localhost:3000/notes`).then(resp => resp.json()).then(notes => {
+        const filteredNotes = notes.filter(note => note.topic_id == +e.target.id.split('-')[1]);
+        filteredNotes.sort((a,b) => a.id - b.id).forEach(note => {
+          if(!note.ancestry) {
+            addNoteToDOM(notesContainer, note)
+          } else {
+            const parentContainer = document.querySelector(`li[id="${note.ancestry.includes('/') ? +note.ancestry.split('/')[note.ancestry.split('/').length - 1] : +note.ancestry}"]`);
+            addNoteToDOM(parentContainer, note);
+          }
+        })
+      });
+    }
 
   // ------------------ EVENT LISTENERS -------------------------
   sidebar.addEventListener('mouseover', e => {
@@ -164,89 +176,71 @@ function loggedIn() {
   function addNotesToDOM(e) {
     currentTopic = +e.target.id.split('-')[1];
     document.querySelector('h1').innerText = e.target.innerText;
-    // console.log(e.target.innerText);
     if(e.target.className.includes('topic-item')) {
       notesContainer.innerHTML = `
         <a class="add-note add-child-note" style="font-size: 25px;" title="Add a child note">+</a>
       `;
-      fetch(`http://localhost:3000/notes`).then(resp => resp.json()).then(notes => {
-        const filteredNotes = notes.filter(note => note.topic_id == +e.target.id.split('-')[1]);
-        console.log(filteredNotes);
-        filteredNotes.sort((a,b) => a.id - b.id).forEach(note => {
-          if(!note.ancestry) {
-            addNoteToDOM(notesContainer, note)
-          } else {
-            const parentContainer = document.querySelector(`li[id="${note.ancestry.includes('/') ? +note.ancestry.split('/')[note.ancestry.split('/').length - 1] : +note.ancestry}"]`);
-            addNoteToDOM(parentContainer, note);
-          }
-        })
-<<<<<<< HEAD
-      });
-    }
+      fetchNotes(e);
   }
 
-  function noteClickHandler(e) {
-    if(e.target.className.includes('add-note') && !e.target.className.includes('add-child-note')) console.log('add parent note');
-    if(e.target.className.includes('add-child-note')) {
-      const targetLi = e.target.parentNode;
-      addNoteFormToDOM(targetLi);
-      const curForm = targetLi.querySelector('form');
-      curForm.addEventListener('submit', e => {
-        e.preventDefault();
-        // console.log(e.target.querySelector("#new-note-text").value)
-        fetch('http://localhost:3000/notes', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            content: e.target.querySelector("#new-note-text").value,
-            topic_id: currentTopic,
-            ancestry: e.target.parentNode.tagName === 'LI' ? (e.target.parentNode.ancestry ? e.target.parentNode.ancestry + '/' + e.target.parentNode.id : e.target.parentNode.id.toString()) : null
-          })
-        }).then(resp => resp.json()).then(data => {
-          console.log(data.id);
-          addNoteToDOM(e.target.parentNode, data)
-          e.target.parentNode.removeChild(curForm);
-        })
-        curForm.reset();
-      });
-    }
-    if(e.target.className.includes('remove-note')) {
-      fetch(`http://localhost:3000/notes/${e.target.parentNode.id}`, {
-        method: 'delete'
 =======
-      }).then(resp => resp.json()).then(data => {
-        addNoteToDOM(e.target.parentNode, data)
-        console.log(e.target.parentNode);
-        !!e.target.parentNode ? e.target.parentNode.removeChild(curForm) : document.querySelector('#new-top-level-note').removeChild(curForm);
->>>>>>> master
-      })
-      e.target.parentNode.parentNode.removeChild(e.target.parentNode);
-    }
-  }
-<<<<<<< HEAD
+function postNote(e, curForm) {
+  fetch('http://localhost:3000/notes', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      content: e.target.querySelector("#new-note-text").value,
+      topic_id: currentTopic,
+      ancestry: e.target.parentNode.tagName === 'LI' ? (/\d+/.test(e.target.parentNode.getAttribute('ancestry')) ? e.target.parentNode.ancestry + '/' + e.target.parentNode.id : e.target.parentNode.id.toString()) : null
+  }).then(resp => resp.json()).then(data => {
+    addNoteToDOM(e.target.parentNode, data)
+    // ⬇⬇⬇ ISSUES HERE ⬇⬇⬇
+    !!e.target.parentNode ? e.target.parentNode.removeChild(curForm) : document.querySelector('#new-top-level-note').removeChild(curForm);
+    // ⬆⬆⬆ ISSUES HERE ⬆⬆⬆
+  });
+}
 
-  function addNoteToDOM(container, note) {
-    const newNoteHTML = `
-      <li id=${note.id} title="Created by: someuser" ancestry=${note.ancestry}>${note.content}&nbsp;&nbsp;&nbsp;&nbsp;<a class="add-note add-child-note" style="font-size: 25px;" title="Add a child note">+</a>&nbsp;&nbsp;&nbsp;&nbsp;<a class="remove-note" style="font-size: 25px;" title="Delete this note and all children">-</a></li>
-      `
-    if(container.tagName === 'LI') {
-      const nestedUl = document.createElement('ul');
-      nestedUl.innerHTML = newNoteHTML;
-      container.append(nestedUl);
-    } else {
-      container.innerHTML += newNoteHTML;
-    }
-=======
-  if(e.target.className.includes('remove-note')) {
-    const noteId = e.target.parentNode.id;
-    fetch(`http://localhost:3000/notes/${noteId}`, {
-      method: 'delete'
-    })
-    e.target.parentNode.parentNode.removeChild(e.target.parentNode);
->>>>>>> master
+function addChildNote(e) {
+  const targetLi = e.target.parentNode;
+  addNoteFormToDOM(targetLi);
+  const curForm = targetLi.querySelector('form');
+  curForm.addEventListener('submit', e => {
+    e.preventDefault();
+    postNote(e, curForm);
+    curForm.reset();
+  });
+}
+
+function deleteNote(e) {
+  const noteId = e.target.parentNode.id;
+  const noteTree = document.querySelectorAll(`li[ancestry*="${noteId}"]`);
+  noteTree.forEach(note => console.log(note))
+  // fetch(`http://localhost:3000/notes/${noteId}`, {
+  //   method: 'delete'
+  // })
+  // e.target.parentNode.parentNode.removeChild(e.target.parentNode);
+}
+
+function noteClickHandler(e) {
+  if(e.target.className.includes('add-note') && !e.target.className.includes('add-child-note')) console.log('add parent note');
+  if(e.target.className.includes('add-child-note')) addChildNote(e);
+  if(e.target.className.includes('remove-note')) deleteNote(e);
+}
+
+function addNoteToDOM(container, note) {
+  const newNoteHTML = `
+    <li id=${note.id} title="Created by: someuser" ancestry=${note.ancestry}>${note.content}&nbsp;&nbsp;&nbsp;&nbsp;<a class="add-note add-child-note" style="font-size: 25px;" title="Add a child note">+</a>&nbsp;&nbsp;&nbsp;&nbsp;<a class="remove-note" style="font-size: 25px;" title="Delete this note and all children">-</a></li>
+    `
+  if(container.tagName === 'LI') {
+    const nestedUl = document.createElement('ul');
+    nestedUl.innerHTML = newNoteHTML;
+    container.append(nestedUl);
+  } else {
+    container.innerHTML += newNoteHTML;
   }
+}
 
   function addNoteFormToDOM(noteLi) {
     noteLi.innerHTML += `
