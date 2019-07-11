@@ -96,6 +96,7 @@ function loggedIn() {
       modalForm.reset()
       modal.style.display = "none"
     })
+  }
 
     function fetchNotes(e) {
       fetch(`http://localhost:3000/notes`).then(resp => resp.json()).then(notes => {
@@ -112,18 +113,26 @@ function loggedIn() {
     }
 
   // ------------------ EVENT LISTENERS -------------------------
+  // -- sidebar events
   sidebar.addEventListener('mouseover', e => {
     e.target.style.width = "250px";
     main.style.marginLeft = "250px";
-  });
+  })
 
   sidebar.addEventListener('mouseleave', e => {
     e.target.style.width = "0.5%";
     main.style.marginLeft = "0";
-  });
+  })
 
-  sidebar.addEventListener('click', addNotesToDOM);
-
+  sidebar.addEventListener('click', sidebarClickHandler);
+  function sidebarClickHandler(e) {
+    if (e.target.id === "switch-topics") {
+      switchSidebarTopics(e)
+    } else if (e.target.className.includes("topic-item")) {
+      addNotesToDOM(e)
+    }
+  }
+  // --
   notesContainer.addEventListener('click', noteClickHandler);
 
   // -- modal events
@@ -146,9 +155,8 @@ function loggedIn() {
 
   // ----------------------- FUNCTIONS -----------------------------
   function addTopicsToSidebar(topics) {
-    const twentyTopics = topics.slice(0,20)
     topicsList.innerHTML = '';
-    twentyTopics.forEach(topic => {
+    topics.forEach(topic => {
       oneTopicToSideBar(topic)
     });
   }
@@ -161,7 +169,6 @@ function loggedIn() {
   }
 
   function switchSidebarTopics(e) {
-    if(e.target.id === "switch-topics"){
       const switchTopicsAnchor = document.querySelector("#switch-topics")
       if (switchTopicsAnchor.innerText === "See All Topics") {
         fetchAllTopics()
@@ -171,9 +178,9 @@ function loggedIn() {
         switchTopicsAnchor.innerText = "See All Topics"
       }
     }
-  }
 
   function addNotesToDOM(e) {
+    // debugger
     currentTopic = +e.target.id.split('-')[1];
     document.querySelector('h1').innerText = e.target.innerText;
     if(e.target.className.includes('topic-item')) {
@@ -182,6 +189,7 @@ function loggedIn() {
       `;
       fetchNotes(e);
   }
+}
 
 function postNote(e, curForm) {
   fetch('http://localhost:3000/notes', {
@@ -256,4 +264,4 @@ function addNoteToDOM(container, note) {
     `
   }
 
-}
+  }
