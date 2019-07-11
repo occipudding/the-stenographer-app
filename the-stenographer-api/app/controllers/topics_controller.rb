@@ -3,13 +3,19 @@ class TopicsController < ApplicationController
   def index
     topics = Topic.all
     render json: topics.as_json(
+      include: {
+        user: {only: [:id, :name]}
+      },
       only: [:id, :title, :tags, :user_id]
     )
   end
 
   def show
     topic = Topic.find(params[:id])
-    render json: topic.to_json(
+    render json: topics.as_json(
+      include: {
+        user: {only: [:id, :name]}
+      },
       only: [:id, :title, :tags, :user_id]
     )
   end
@@ -38,7 +44,7 @@ class TopicsController < ApplicationController
     {
       title: permit_the_params[:title],
       tags: convert_tags_params(permit_the_params[:tags]),
-      user_id: User.all.sample.id #change this to current user
+      user_id: permit_the_params[:user_id]
     }
   end
 

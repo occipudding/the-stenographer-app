@@ -6,6 +6,8 @@
     <title>Stenographer</title>
   </head>
   <body>
+    <div id="app" class="app">
+
     <div id="sidebar" class="sidebar">
       <div id="username-container" class="sidebar-text"></div><br>
       <div id="topics-header" class="sidebar-text">TOPICS</div>
@@ -16,7 +18,12 @@
       <ul id="topics-list">
 
       </ul>
+      <div id="sidebar-footer" class="sidebar-footer">
+        <a href="#" id="switch-topics" class="sidebar-text">See All Topics</a>
+
+      </div>
     </div>
+
     <div id="main">
       <h1 style="text-align:center;font-size:45px;">Stenographer</h1>
       <ul id="notes-container">
@@ -36,12 +43,12 @@
               <br><br>
               <p>
             <label for="topic-title">topic title</label>
-            <input id="title-input" type="text" id="topic-title" name="topic-title" size="40">
+            <input id="topic-title" type="text" name="topic-title" size="40">
             </p>
             <br>
             <p>
             <label for="topic-tags">tags</label>
-            <input id="tags-input" type="text" id="topic-tags" name="topic-tags" size="40">
+            <input id="topic-tags" type="text" name="topic-tags" size="40">
           </p>
             <br><br>
             <input type="submit" value="Submit">
@@ -54,6 +61,23 @@
       </div>
 
     </div>
+    </div>
+
+    <div id="login" class="login">
+      <form id="login-form">
+        <fieldset>
+          <legend>Login/Signup</legend>
+          <br><br>
+          <p>
+        <label for="user-name">username</label>
+        <input id="user-name" type="text" name="user-name" size="20">
+      </p>
+        <br><br>
+        <input type="submit" value="Enter">
+        </fieldset>
+      </form>
+    </div>
+
     <script src="index.js"></script>
   </body>
 </html>
