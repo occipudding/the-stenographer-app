@@ -3,6 +3,8 @@ const main = document.querySelector("#main");
 const sidebar = document.querySelector("#sidebar");
 const usernameContainer = document.querySelector("#username-container");
 const topicsList = document.querySelector("#topics-list");
+const topicDeleteBtn = document.querySelector('#delete-topic');
+const mainContainer = document.querySelector('.main-container')
 const notesContainer = document.querySelector("#notes-container");
 let currentTopic;
 
@@ -76,6 +78,23 @@ function loggedIn() {
     .then(addTopicsToSidebar)
   }
 
+  function fetchOneTopic(e) {
+    const topicId = +e.target.id.split('-')[1];
+    fetch(`http://localhost:3000/topics/${topicId}`)
+    .then(res => res.json())
+    .then(topic => addNotesToDOM(e, topic))
+  }
+
+  function deleteTopic(e, topicId) {
+    if (e.target.id === "delete-topic") {
+      fetch(`http://localhost:3000/topics/${topicId}`, {
+        method: 'DELETE'
+      })
+      debugger
+
+    }
+  }
+
   function postTopic(e) {
     e.preventDefault()
     const titleInput = document.querySelector("#topic-title").value
@@ -129,11 +148,13 @@ function loggedIn() {
     if (e.target.id === "switch-topics") {
       switchSidebarTopics(e)
     } else if (e.target.className.includes("topic-item")) {
-      addNotesToDOM(e)
+      fetchOneTopic(e)
     }
   }
   // --
   notesContainer.addEventListener('click', noteClickHandler);
+
+  topicDeleteBtn.addEventListener('click', console.log) // here here here
 
   // -- modal events
   newTopicAnchor.addEventListener('click', e => {
@@ -179,10 +200,17 @@ function loggedIn() {
       }
     }
 
-  function addNotesToDOM(e) {
-    // debugger
-    currentTopic = +e.target.id.split('-')[1];
-    document.querySelector('h1').innerText = e.target.innerText;
+  function addNotesToDOM(e, topicData) {
+    // const topicId = +e.target.id.split('-')[1];
+    // fetchOneTopic(topicId).then(topic => {currentTopic = topic})
+    document.querySelector('h1').innerHTML = topicData.title;
+    if (topicData.user.id === currentUser.id) {
+      topicDeleteBtn.style.display = "block"
+      // deleteTopic(e, topicData.id))
+    } else {
+      topicDeleteBtn.style.display = "none"
+    }
+
     if(e.target.className.includes('topic-item')) {
       notesContainer.innerHTML = `
         <a id="new-top-level-note" class="add-note" style="font-size: 25px;" title="Create a new top level note">+</a>
@@ -199,7 +227,7 @@ function postNote(e, curForm) {
     },
     body: JSON.stringify({
       content: e.target.querySelector("#new-note-text").value,
-      topic_id: currentTopic,
+      topic_id: currentTopic.id,
       ancestry: e.target.parentNode.tagName === 'LI' ? (/\d+/.test(e.target.parentNode.getAttribute('ancestry')) ? e.target.parentNode.getAttribute('ancestry') + '/' + e.target.parentNode.id : e.target.parentNode.id.toString()) : null
     })
   }).then(resp => resp.json()).then(data => {
