@@ -246,15 +246,21 @@ function deleteNote(e) {
   e.target.parentNode.parentNode.removeChild(e.target.parentNode);
 }
 
+function editNote(e) {
+  console.log(!e.target.parentNode.getAttribute('contenteditable'));
+  e.target.parentNode.contentEditable = !e.target.parentNode.contentEditable;
+}
+
 function noteClickHandler(e) {
   if(e.target.className.includes('add-note') && !e.target.className.includes('add-child-note')) addTopLevelNote(e);
   if(e.target.className.includes('add-child-note')) addChildNote(e);
   if(e.target.className.includes('remove-note')) deleteNote(e);
+  if(e.target.className.includes('edit-note')) editNote(e);
 }
 
 function addNoteToDOM(container, note) {
   const newNoteHTML = `
-    <li id=${note.id} title="Created by: ${usernameContainer.innerText}" ancestry=${note.ancestry}>${note.content}&nbsp;&nbsp;&nbsp;&nbsp;<a class="add-note add-child-note" style="font-size: 25px;" title="Add a child note">+</a>&nbsp;&nbsp;&nbsp;&nbsp;<a class="remove-note" style="font-size: 25px;" title="Delete this note and all children">-</a></li>
+    <li id=${note.id} title="Created by: ${usernameContainer.innerText}" ancestry=${note.ancestry} contenteditable="false">${note.content}&nbsp;&nbsp;&nbsp;&nbsp;<a class="add-note add-child-note" style="font-size: 25px;" title="Add a child note">+</a>&nbsp;&nbsp;&nbsp;&nbsp;<a class="remove-note" style="font-size: 25px;" title="Delete this note and all children">-</a>&nbsp;&nbsp;&nbsp;&nbsp;<a class="edit-note" style="font-size: 25px;" title="Edit this note">✎</a></li>
     `
   if(container.tagName === 'LI') {
     const nestedUl = document.createElement('ul');
