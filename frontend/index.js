@@ -12,127 +12,178 @@ const modal = document.querySelector('#modal')
 const closeBtn = document.querySelector(".close-btn")
 const modalForm = document.querySelector("#modal-form")
 
+//login variables
 let currentUser = ""
+const loginForm = document.querySelector("#login-form")
 
-// ------------------- FETCHES -------------------------------
-fetch('http://localhost:3000/users').then(resp => resp.json()).then(users => {
-  usernameContainer.innerText = users[Math.floor(Math.random() * users.length)].name;
-});
 
-function getOneUser(userId){
-  fetch(`http://localhost:3000/users/${userId}`)
-  .then(res => res.json())
-  .then(console.log)
-}
+if (currentUser === "") {
 
-fetch('http://localhost:3000/topics').then(resp => resp.json()).then(addTopicsToSidebar);
+// --- login events ---
+loginForm.addEventListener('submit', getOrPostUser)
 
-function postTopic(e) {
+// --- login fetch ---
+function getOrPostUser(e) {
   e.preventDefault()
-  const titleInput = document.querySelector("#title-input").value
-  const tagsInput = document.querySelector("#tags-input").value
+  const nameInput = document.querySelector("#user-name").value
 
-  // debugger
-
-  fetch('http://localhost:3000/topics', {
+  fetch(`http://localhost:3000/users/${nameInput}`, {
     method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-      title: titleInput,
-      tags: tagsInput,
-      user_id: 319
-    })
+    headers: {'Content-Type' : 'application/json'}
   })
   .then(res => res.json())
-  .then(newTopicToSideBar)
-
-}
-
-function fetchNotes(e) {
-  fetch(`http://localhost:3000/notes`).then(resp => resp.json()).then(notes => {
-    const filteredNotes = notes.filter(note => note.topic_id == +e.target.id.split('-')[1]);
-    filteredNotes.sort((a,b) => a.id - b.id).forEach(note => {
-      if(!note.ancestry) {
-        addNoteToDOM(notesContainer, note)
-      } else {
-        const parentContainer = document.querySelector(`li[id="${note.ancestry.includes('/') ? +note.ancestry.split('/')[note.ancestry.split('/').length - 1] : +note.ancestry}"]`);
-        addNoteToDOM(parentContainer, note);
-      }
+  .then(user => {
+      currentUser = user
+      loginForm.style.display = "none"
+      loggedIn()
     })
-  });
+  }
 }
 
-// ------------------ EVENT LISTENERS -------------------------
-sidebar.addEventListener('mouseover', e => {
-  e.target.style.width = "250px";
-  main.style.marginLeft = "250px";
-});
 
-sidebar.addEventListener('mouseleave', e => {
-  e.target.style.width = "0.5%";
-  main.style.marginLeft = "0";
-});
+function loggedIn() {
+// if (currentUser !== "") {
 
-sidebar.addEventListener('click', addNotesToDOM);
-notesContainer.addEventListener('click', noteClickHandler);
 
-// modal events
-newTopicAnchor.addEventListener('click', e => {
-  modal.style.display = "block"
-})
+// ------------------- FETCHES -------------------------------
+  // fetch('http://localhost:3000/users')
+  // .then(resp => resp.json())
+  // .then(users => {
+  //   usernameContainer.innerText = users[Math.floor(Math.random() * users.length)].name;
+  // });
+  usernameContainer.innerText = currentUser.name
 
-closeBtn.addEventListener('click', e => {
-  modal.style.display = "none"
-})
 
-window.addEventListener('click', e => {
-  if (e.target == modal){
+  // function getOneUser(userId){
+  //   fetch(`http://localhost:3000/users/${userId}`)
+  //   .then(res => res.json())
+  //   .then(console.log)
+  // }
+  fetchMyTopics()
+
+  function fetchMyTopics() {
+    fetch('http://localhost:3000/topics')
+    .then(res => res.json())
+    .then(data => {
+      const currUserTopics = data.filter(topic => topic.user.id === currentUser.id)
+      addTopicsToSidebar(currUserTopics)
+    })
+  }
+
+  function fetchAllTopics() {
+    fetch(`http://localhost:3000/topics`)
+    .then(res => res.json())
+    .then(addTopicsToSidebar)
+  }
+
+  function postTopic(e) {
+    e.preventDefault()
+    const titleInput = document.querySelector("#topic-title").value
+    const tagsInput = document.querySelector("#topic-tags").value
+
+    fetch('http://localhost:3000/topics', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        title: titleInput,
+        tags: tagsInput,
+        user_id: currentUser.id
+      })
+    })
+    .then(res => res.json())
+    .then(topics => {
+      oneTopicToSideBar(topics)
+      modalForm.reset()
+      modal.style.display = "none"
+    })
+
+    function fetchNotes(e) {
+      fetch(`http://localhost:3000/notes`).then(resp => resp.json()).then(notes => {
+        const filteredNotes = notes.filter(note => note.topic_id == +e.target.id.split('-')[1]);
+        filteredNotes.sort((a,b) => a.id - b.id).forEach(note => {
+          if(!note.ancestry) {
+            addNoteToDOM(notesContainer, note)
+          } else {
+            const parentContainer = document.querySelector(`li[id="${note.ancestry.includes('/') ? +note.ancestry.split('/')[note.ancestry.split('/').length - 1] : +note.ancestry}"]`);
+            addNoteToDOM(parentContainer, note);
+          }
+        })
+      });
+    }
+
+  // ------------------ EVENT LISTENERS -------------------------
+  sidebar.addEventListener('mouseover', e => {
+    e.target.style.width = "250px";
+    main.style.marginLeft = "250px";
+  });
+
+  sidebar.addEventListener('mouseleave', e => {
+    e.target.style.width = "0.5%";
+    main.style.marginLeft = "0";
+  });
+
+  sidebar.addEventListener('click', addNotesToDOM);
+
+  notesContainer.addEventListener('click', noteClickHandler);
+
+  // -- modal events
+  newTopicAnchor.addEventListener('click', e => {
+    modal.style.display = "block"
+  })
+
+  closeBtn.addEventListener('click', e => {
     modal.style.display = "none"
-  }
-})
+  })
 
-// modal form events
-modalForm.addEventListener('submit', postTopic)
+  window.addEventListener('click', e => {
+    if (e.target == modal){
+      modal.style.display = "none"
+    }
+  })
 
-// ----------------------- FUNCTIONS -----------------------------
-function addTopicsToSidebar(topics) {
-  topicsList.innerHTML = '';
-  topics.forEach(topic => {
-    let tagsString = 'Tags: ';
-    topic.tags.forEach(tag => {
-      if(tag == topic.tags[topic.tags.length - 1]) {
-        tagsString += `${tag}`;
-      } else {
-        tagsString += `${tag}, `;
-      }
+  // -- modal form events
+  modalForm.addEventListener('submit', postTopic)
+
+  // ----------------------- FUNCTIONS -----------------------------
+  function addTopicsToSidebar(topics) {
+    const twentyTopics = topics.slice(0,20)
+    topicsList.innerHTML = '';
+    twentyTopics.forEach(topic => {
+      oneTopicToSideBar(topic)
     });
-    topicsList.innerHTML += `
-      <li id="topic-${topic.id}" class="topic-item sidebar-text" title="${tagsString}">${topic.title}</li>
-    `
-  });
-}
-
-function newTopicToSideBar(topic) {
-  const tagsToString = topic.tags.join(', ')
-  topicsList.innerHTML += `
-  <li id="topic-${topic.id}" class="topic-item sidebar-text" title="${tagsToString}">${topic.title}</li>
-  `
-  modalForm.reset()
-  modal.style.display = "none"
-
-}
-
-function addNotesToDOM(e) {
-  currentTopic = +e.target.id.split('-')[1];
-  document.querySelector('h1').innerText = e.target.innerText;
-  if(e.target.className.includes('topic-item')) {
-    notesContainer.innerHTML = `
-      <a class="add-note add-child-note" style="font-size: 25px;" title="Add a child note">+</a>
-    `;
-    fetchNotes(e);
   }
-}
 
+  function oneTopicToSideBar(topic) {
+    const tagsToString = 'Tags: ' + topic.tags.join(', ')
+    topicsList.innerHTML += `
+    <li id="topic-${topic.id}" class="topic-item sidebar-text" title="${tagsToString}">${topic.title}</li>
+    `
+  }
+
+  function switchSidebarTopics(e) {
+    if(e.target.id === "switch-topics"){
+      const switchTopicsAnchor = document.querySelector("#switch-topics")
+      if (switchTopicsAnchor.innerText === "See All Topics") {
+        fetchAllTopics()
+        switchTopicsAnchor.innerText = "See My Topics"
+      } else {
+        fetchMyTopics()
+        switchTopicsAnchor.innerText = "See All Topics"
+      }
+    }
+  }
+
+  function addNotesToDOM(e) {
+    currentTopic = +e.target.id.split('-')[1];
+    document.querySelector('h1').innerText = e.target.innerText;
+    if(e.target.className.includes('topic-item')) {
+      notesContainer.innerHTML = `
+        <a class="add-note add-child-note" style="font-size: 25px;" title="Add a child note">+</a>
+      `;
+      fetchNotes(e);
+  }
+
+=======
 function postNote(e, curForm) {
   fetch('http://localhost:3000/notes', {
     method: 'POST',
@@ -143,7 +194,6 @@ function postNote(e, curForm) {
       content: e.target.querySelector("#new-note-text").value,
       topic_id: currentTopic,
       ancestry: e.target.parentNode.tagName === 'LI' ? (/\d+/.test(e.target.parentNode.getAttribute('ancestry')) ? e.target.parentNode.ancestry + '/' + e.target.parentNode.id : e.target.parentNode.id.toString()) : null
-    })
   }).then(resp => resp.json()).then(data => {
     addNoteToDOM(e.target.parentNode, data)
     // ⬇⬇⬇ ISSUES HERE ⬇⬇⬇
@@ -192,11 +242,13 @@ function addNoteToDOM(container, note) {
   }
 }
 
-function addNoteFormToDOM(noteLi) {
-  noteLi.innerHTML += `
-    <form>
-      <input id="new-note-text" type="text">
-      <input type="submit" name="submit">
-    </form>
-  `
+  function addNoteFormToDOM(noteLi) {
+    noteLi.innerHTML += `
+      <form>
+        <input id="new-note-text" type="text">
+        <input type="submit" name="submit">
+      </form>
+    `
+  }
+
 }
