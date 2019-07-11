@@ -185,7 +185,7 @@ function loggedIn() {
     document.querySelector('h1').innerText = e.target.innerText;
     if(e.target.className.includes('topic-item')) {
       notesContainer.innerHTML = `
-        <a class="add-note add-child-note" style="font-size: 25px;" title="Add a child note">+</a>
+        <a id="new-top-level-note" class="add-note" style="font-size: 25px;" title="Create a new top level note">+</a>
       `;
       fetchNotes(e);
   }
@@ -203,49 +203,70 @@ function postNote(e, curForm) {
       ancestry: e.target.parentNode.tagName === 'LI' ? (/\d+/.test(e.target.parentNode.getAttribute('ancestry')) ? e.target.parentNode.getAttribute('ancestry') + '/' + e.target.parentNode.id : e.target.parentNode.id.toString()) : null
     })
   }).then(resp => resp.json()).then(data => {
-    addNoteToDOM(e.target.parentNode, data)
-    // ⬇⬇⬇ ISSUES HERE ⬇⬇⬇
-    !!e.target.parentNode ? e.target.parentNode.removeChild(curForm) : document.querySelector('#new-top-level-note').removeChild(curForm);
-    // ⬆⬆⬆ ISSUES HERE ⬆⬆⬆
+    if(e.target.parentNode.id !== 'new-top-level-note') {
+      addNoteToDOM(e.target.parentNode, data);
+    } else {
+      addNoteToDOM(notesContainer, data);
+    }
+    e.target.parentNode.id !== 'new-top-level-note' ? e.target.parentNode.removeChild(curForm) : document.querySelector('#new-top-level-note').removeChild(document.querySelector('form'));
   });
+}
+
+function formHandler(el) {
+  const curForm = el.querySelector('form');
+  if(!!curForm) {
+    curForm.addEventListener('submit', e => {
+      e.preventDefault();
+      postNote(e, curForm);
+      curForm.reset();
+    });
+  }
+}
+
+function addTopLevelNote(e) {
+  console.log(e.target);
+  addNoteFormToDOM(e.target);
+  formHandler(e.target);
 }
 
 function addChildNote(e) {
   const targetLi = e.target.parentNode;
   addNoteFormToDOM(targetLi);
-  const curForm = targetLi.querySelector('form');
-  curForm.addEventListener('submit', e => {
-    e.preventDefault();
-    postNote(e, curForm);
-    curForm.reset();
-  });
+  formHandler(targetLi);
 }
 
 function deleteNote(e) {
   const noteId = e.target.parentNode.id;
   const noteTree = document.querySelectorAll(`li[ancestry*="${noteId}"]`);
-  noteTree.forEach(note => {
+  const noteTreeArray = [];
+  noteTree.forEach(note => noteTreeArray.unshift(note));
+  noteTreeArray.forEach(note => {
     fetch(`http://localhost:3000/notes/${note.id}`, {
     method: 'delete'
     });
-  e.target.parentNode.parentNode.removeChild(e.target.parentNode);
-  console.log(note);
-})
+    note.parentNode.removeChild(note);
+  });
   fetch(`http://localhost:3000/notes/${noteId}`, {
     method: 'delete'
   })
   e.target.parentNode.parentNode.removeChild(e.target.parentNode);
 }
 
+function editNote(e) {
+  console.log(!e.target.parentNode.getAttribute('contenteditable'));
+  e.target.parentNode.contentEditable = !e.target.parentNode.contentEditable;
+}
+
 function noteClickHandler(e) {
-  if(e.target.className.includes('add-note') && !e.target.className.includes('add-child-note')) console.log('add parent note');
+  if(e.target.className.includes('add-note') && !e.target.className.includes('add-child-note')) addTopLevelNote(e);
   if(e.target.className.includes('add-child-note')) addChildNote(e);
   if(e.target.className.includes('remove-note')) deleteNote(e);
+  if(e.target.className.includes('edit-note')) editNote(e);
 }
 
 function addNoteToDOM(container, note) {
   const newNoteHTML = `
-    <li id=${note.id} title="Created by: ${usernameContainer.innerText}" ancestry=${note.ancestry}>${note.content}&nbsp;&nbsp;&nbsp;&nbsp;<a class="add-note add-child-note" style="font-size: 25px;" title="Add a child note">+</a>&nbsp;&nbsp;&nbsp;&nbsp;<a class="remove-note" style="font-size: 25px;" title="Delete this note and all children">-</a></li>
+    <li id=${note.id} title="Created by: ${usernameContainer.innerText}" ancestry=${note.ancestry} contenteditable="false">${note.content}&nbsp;&nbsp;&nbsp;&nbsp;<a class="add-note add-child-note" style="font-size: 25px;" title="Add a child note">+</a>&nbsp;&nbsp;&nbsp;&nbsp;<a class="remove-note" style="font-size: 25px;" title="Delete this note and all children">-</a>&nbsp;&nbsp;&nbsp;&nbsp;<a class="edit-note" style="font-size: 25px;" title="Edit this note">✎</a></li>
     `
   if(container.tagName === 'LI') {
     const nestedUl = document.createElement('ul');
@@ -257,16 +278,20 @@ function addNoteToDOM(container, note) {
 }
 
   function addNoteFormToDOM(noteLi) {
-    const form = document.createElement('form');
-    const newNoteText = document.createElement('input');
-    const submit = document.createElement('input');
-    newNoteText.type = 'text';
-    newNoteText.id = 'new-note-text';
-    submit.type = 'submit';
-    submit.name = 'submit';
-    form.append(newNoteText);
-    form.append(submit);
-    noteLi.insertBefore(form, noteLi.querySelectorAll('ul')[0]);
+    if(noteLi.querySelector('form')) {
+      noteLi.removeChild(document.querySelector('form'));
+    } else {
+      const form = document.createElement('form');
+      const newNoteText = document.createElement('input');
+      const submit = document.createElement('input');
+      newNoteText.type = 'text';
+      newNoteText.id = 'new-note-text';
+      submit.type = 'submit';
+      submit.name = 'submit';
+      form.append(newNoteText);
+      form.append(submit);
+      noteLi.insertBefore(form, noteLi.querySelectorAll('ul')[0]);
+    }
   }
 
   }
