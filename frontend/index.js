@@ -112,13 +112,6 @@ function loggedIn() {
 
   sidebar.addEventListener('click', addNotesToDOM);
 
-  // function sidebarClickHandler(e) {
-  //   if(e.target.className.includes('topic-item')) {
-  //     addNotesToDOM(e)
-  //   }
-  // }
-  sidebar.addEventListener('click', switchSidebarTopics)
-
   notesContainer.addEventListener('click', noteClickHandler);
 
   // -- modal events
@@ -141,9 +134,9 @@ function loggedIn() {
 
   // ----------------------- FUNCTIONS -----------------------------
   function addTopicsToSidebar(topics) {
-    const thirtyTopics = topics.slice(0,20)
+    const twentyTopics = topics.slice(0,20)
     topicsList.innerHTML = '';
-    thirtyTopics.forEach(topic => {
+    twentyTopics.forEach(topic => {
       oneTopicToSideBar(topic)
     });
   }
@@ -170,8 +163,12 @@ function loggedIn() {
 
   function addNotesToDOM(e) {
     currentTopic = +e.target.id.split('-')[1];
+    document.querySelector('h1').innerText = e.target.innerText;
+    // console.log(e.target.innerText);
     if(e.target.className.includes('topic-item')) {
-      notesContainer.innerHTML = '';
+      notesContainer.innerHTML = `
+        <a class="add-note add-child-note" style="font-size: 25px;" title="Add a child note">+</a>
+      `;
       fetch(`http://localhost:3000/notes`).then(resp => resp.json()).then(notes => {
         const filteredNotes = notes.filter(note => note.topic_id == +e.target.id.split('-')[1]);
         console.log(filteredNotes);
@@ -183,6 +180,7 @@ function loggedIn() {
             addNoteToDOM(parentContainer, note);
           }
         })
+<<<<<<< HEAD
       });
     }
   }
@@ -217,10 +215,17 @@ function loggedIn() {
     if(e.target.className.includes('remove-note')) {
       fetch(`http://localhost:3000/notes/${e.target.parentNode.id}`, {
         method: 'delete'
+=======
+      }).then(resp => resp.json()).then(data => {
+        addNoteToDOM(e.target.parentNode, data)
+        console.log(e.target.parentNode);
+        !!e.target.parentNode ? e.target.parentNode.removeChild(curForm) : document.querySelector('#new-top-level-note').removeChild(curForm);
+>>>>>>> master
       })
       e.target.parentNode.parentNode.removeChild(e.target.parentNode);
     }
   }
+<<<<<<< HEAD
 
   function addNoteToDOM(container, note) {
     const newNoteHTML = `
@@ -233,6 +238,14 @@ function loggedIn() {
     } else {
       container.innerHTML += newNoteHTML;
     }
+=======
+  if(e.target.className.includes('remove-note')) {
+    const noteId = e.target.parentNode.id;
+    fetch(`http://localhost:3000/notes/${noteId}`, {
+      method: 'delete'
+    })
+    e.target.parentNode.parentNode.removeChild(e.target.parentNode);
+>>>>>>> master
   }
 
   function addNoteFormToDOM(noteLi) {
