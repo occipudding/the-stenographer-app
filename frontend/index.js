@@ -247,8 +247,13 @@ function deleteNote(e) {
 }
 
 function editNote(e) {
-  console.log(!e.target.parentNode.getAttribute('contenteditable'));
-  e.target.parentNode.contentEditable = !e.target.parentNode.contentEditable;
+  if(e.target.parentNode.getAttribute('contenteditable') ==  'false') {
+    e.target.innerText = '✐';
+    e.target.parentNode.setAttribute('contenteditable', 'true');
+  } else {
+    e.target.innerText = '✎';
+    e.target.parentNode.setAttribute('contenteditable', 'false');
+  }
 }
 
 function noteClickHandler(e) {
