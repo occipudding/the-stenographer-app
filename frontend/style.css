@@ -1,13 +1,12 @@
+@import url('https://fonts.googleapis.com/css?family=Caveat+Brush|Just+Another+Hand&display=swap');
 @font-face {
   font-family: MarsdenCondensedHeavy;
   src: url(./fonts/MarsdenCondensedHeavy.otf)
 }
-@import url('https://fonts.googleapis.com/css?family=Caveat+Brush|Just+Another+Hand&display=swap');
 
 body {
   background-image: url(./images/cocktail_napkin.jpg);
   font-family: MarsdenCondensedHeavy;
-  /* font-family: 'Just Another Hand', cursive; */
 }
 
 .sidebar {
