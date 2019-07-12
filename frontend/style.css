@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css?family=Caveat+Brush|Dekko|Just+Another+Hand&display=swap');
 @font-face {
   font-family: MarsdenCondensedHeavy;
   src: url(./fonts/MarsdenCondensedHeavy.otf)
 }
-@import url('https://fonts.googleapis.com/css?family=Caveat+Brush|Just+Another+Hand&display=swap');
 
 body {
   background-image: url(./images/cocktail_napkin.jpg);
@@ -30,6 +30,11 @@ body {
   transition: 0.5s;
 }
 
+#topics-list > li:hover, a:hover {
+  color: rgb(255, 0, 55);
+  opacity: 1;
+}
+
 .topic-item {
   font-size: 19px;
   color: #979797;
@@ -46,8 +51,9 @@ body {
   padding-left:50px;
   padding-top: 30px;
   padding-bottom: 30px;
-  font-family: 'Caveat Brush', cursive;
-  /* font-size: 20px; */
+  font-family: 'Dekko', cursive;
+  color: rgba(0, 0, 0, 0.9);
+  font-size: 20px;
 }
 
 #topics-header {
@@ -74,6 +80,11 @@ body {
 #new-topic {
   font-size: 15px;
   color: #939393;
+}
+
+#new-topic:hover {
+  color: rgb(242, 160, 241);
+  opacity: 1;
 }
 
 #username-container {
