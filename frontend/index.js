@@ -68,7 +68,6 @@ function loggedIn() {
     .then(res => res.json())
     .then(data => {
       const currUserTopics = data.filter(topic => topic.user.id === currentUser.id)
-      console.log(currUserTopics)
       addTopicsToSidebar(currUserTopics)
     })
   }
@@ -219,7 +218,6 @@ function loggedIn() {
     if (topicData.user.id === currentUser.id) {
       topicDeleteBtn.style.display = "block"
       topicDeleteBtn.dataset.id = topicData.id
-      console.log('button should b there')
     } else {
       topicDeleteBtn.style.display = "none"
     }
@@ -265,7 +263,7 @@ function formHandler(el) {
 }
 
 function addTopLevelNote(e) {
-  console.log(e.target);
+  // console.log(e.target);
   addNoteFormToDOM(e.target);
   formHandler(e.target);
 }
