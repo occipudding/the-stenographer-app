@@ -12,7 +12,7 @@ class TopicsController < ApplicationController
 
   def show
     topic = Topic.find(params[:id])
-    render json: topics.as_json(
+    render json: topic.as_json(
       include: {
         user: {only: [:id, :name]}
       },
@@ -34,14 +34,15 @@ class TopicsController < ApplicationController
   end
 
   def destroy
-    note = Note.find(params[:id])
-    note.destroy
+    topic = Topic.find(params[:id])
+    topic.destroy
   end
 
   private
 
   def topic_params
     {
+      id: permit_the_params[:id],
       title: permit_the_params[:title],
       tags: convert_tags_params(permit_the_params[:tags]),
       user_id: permit_the_params[:user_id]
@@ -49,7 +50,7 @@ class TopicsController < ApplicationController
   end
 
   def permit_the_params
-    params.require(:topic).permit(:title,:user_id,:tags)
+    params.require(:topic).permit(:id, :title,:user_id,:tags)
   end
 
   def convert_tags_params(string)

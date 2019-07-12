@@ -3,6 +3,8 @@ const main = document.querySelector("#main");
 const sidebar = document.querySelector("#sidebar");
 const usernameContainer = document.querySelector("#username-container");
 const topicsList = document.querySelector("#topics-list");
+const topicDeleteBtn = document.querySelector('#delete-topic');
+const mainContainer = document.querySelector('.main-container')
 const notesContainer = document.querySelector("#notes-container");
 let currentTopic;
 
@@ -61,6 +63,32 @@ function loggedIn() {
     .then(addTopicsToSidebar)
   }
 
+  function fetchOneTopic(e) {
+    const topicId = +e.target.id.split('-')[1];
+    fetch(`http://localhost:3000/topics/${topicId}`)
+    .then(res => res.json())
+    .then(topic => addNotesToDOM(e, topic))
+  }
+
+  function deleteTopic(e) {
+    const topicId = e.target.dataset.id
+    if (e.target.id === "delete-topic") {
+      fetch(`http://localhost:3000/topics/${topicId}`, {
+        method: 'DELETE'
+      })
+      // topicsList.childNodes.find(child => {
+        // debugger
+
+      // })
+      .then(() => {
+      fetchMyTopics()
+      topicDeleteBtn.style.display = "none"
+      e.path[1].previousElementSibling.innerHTML =' '
+      e.path[2].children[0].innerText =' '
+    })
+  }
+}
+
   function postTopic(e) {
     e.preventDefault()
     const titleInput = document.querySelector("#topic-title").value
@@ -83,34 +111,46 @@ function loggedIn() {
     })
   }
 
-  function fetchNotes(e) {
-    fetch(`http://localhost:3000/notes`).then(resp => resp.json()).then(notes => {
-      const filteredNotes = notes.filter(note => note.topic_id == +e.target.id.split('-')[1]);
-      filteredNotes.sort((a,b) => a.id - b.id).forEach(note => {
-        if(!note.ancestry) {
-          addNoteToDOM(notesContainer, note)
-        } else {
-          const parentContainer = document.querySelector(`li[id="${note.ancestry.includes('/') ? +note.ancestry.split('/')[note.ancestry.split('/').length - 1] : +note.ancestry}"]`);
-          addNoteToDOM(parentContainer, note);
-        }
-      })
-    });
-  }
+    function fetchNotes(e) {
+      fetch(`http://localhost:3000/notes`).then(resp => resp.json()).then(notes => {
+        notesContainer.style.border = "1px solid rgba(0, 0, 0, 0.3)";
+        const filteredNotes = notes.filter(note => note.topic_id == +e.target.id.split('-')[1]);
+        filteredNotes.sort((a,b) => a.id - b.id).forEach(note => {
+          if(!note.ancestry) {
+            addNoteToDOM(notesContainer, note)
+          } else {
+            const parentContainer = document.querySelector(`li[id="${note.ancestry.includes('/') ? +note.ancestry.split('/')[note.ancestry.split('/').length - 1] : +note.ancestry}"]`);
+            addNoteToDOM(parentContainer, note);
+          }
+        })
+      });
+    }
 
   // ------------------ EVENT LISTENERS -------------------------
+  // -- sidebar events
   sidebar.addEventListener('mouseover', e => {
     e.target.style.width = "250px";
     main.style.marginLeft = "250px";
-  });
+  })
 
   sidebar.addEventListener('mouseleave', e => {
     e.target.style.width = "0.5%";
     main.style.marginLeft = "0";
-  });
+  })
 
-  sidebar.addEventListener('click', addNotesToDOM);
+  sidebar.addEventListener('click', sidebarClickHandler);
 
+  function sidebarClickHandler(e) {
+    if (e.target.id === "switch-topics") {
+      switchSidebarTopics(e)
+    } else if (e.target.className.includes("topic-item")) {
+      fetchOneTopic(e)
+    }
+  }
+  // --
   notesContainer.addEventListener('click', noteClickHandler);
+
+  topicDeleteBtn.addEventListener('click', deleteTopic) // here here here
 
   // -- modal events
   newTopicAnchor.addEventListener('click', e => {
@@ -132,9 +172,8 @@ function loggedIn() {
 
   // ----------------------- FUNCTIONS -----------------------------
   function addTopicsToSidebar(topics) {
-    const twentyTopics = topics.slice(0,20)
     topicsList.innerHTML = '';
-    twentyTopics.forEach(topic => {
+    topics.forEach(topic => {
       oneTopicToSideBar(topic)
     });
   }
@@ -147,7 +186,6 @@ function loggedIn() {
   }
 
   function switchSidebarTopics(e) {
-    if(e.target.id === "switch-topics"){
       const switchTopicsAnchor = document.querySelector("#switch-topics")
       if (switchTopicsAnchor.innerText === "See All Topics") {
         fetchAllTopics()
@@ -157,11 +195,18 @@ function loggedIn() {
         switchTopicsAnchor.innerText = "See All Topics"
       }
     }
-  }
 
-  function addNotesToDOM(e) {
+  function addNotesToDOM(e, topicData) {
     currentTopic = +e.target.id.split('-')[1];
-    document.querySelector('h1').innerText = e.target.innerText;
+    // fetchOneTopic(topicId).then(topic => {currentTopic = topic})
+    document.querySelector('h1').innerHTML = topicData.title;
+    if (topicData.user.id === currentUser.id) {
+      topicDeleteBtn.style.display = "block"
+      topicDeleteBtn.dataset.id = topicData.id
+    } else {
+      topicDeleteBtn.style.display = "none"
+    }
+
     if(e.target.className.includes('topic-item')) {
       notesContainer.innerHTML = `
         <a id="new-top-level-note" class="add-note" style="font-size: 25px;" title="Create a new top level note">+</a>
@@ -281,4 +326,4 @@ function addNoteToDOM(container, note) {
     }
   }
 
-}
+  }
