@@ -198,6 +198,7 @@ function loggedIn() {
 
   function addNotesToDOM(e, topicData) {
     currentTopic = +e.target.id.split('-')[1];
+    // debugger
     // fetchOneTopic(topicId).then(topic => {currentTopic = topic})
     document.querySelector('h1').innerHTML = topicData.title;
     if (topicData.user.id === currentUser.id) {
