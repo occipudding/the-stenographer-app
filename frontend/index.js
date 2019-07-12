@@ -44,23 +44,8 @@ function getOrPostUser(e) {
 
 
 function loggedIn() {
-// if (currentUser !== "") {
-
-
-// ------------------- FETCHES -------------------------------
-  // fetch('http://localhost:3000/users')
-  // .then(resp => resp.json())
-  // .then(users => {
-  //   usernameContainer.innerText = users[Math.floor(Math.random() * users.length)].name;
-  // });
   usernameContainer.innerText = currentUser.name
 
-
-  // function getOneUser(userId){
-  //   fetch(`http://localhost:3000/users/${userId}`)
-  //   .then(res => res.json())
-  //   .then(console.log)
-  // }
   fetchMyTopics()
 
   function fetchMyTopics() {
@@ -263,7 +248,6 @@ function formHandler(el) {
 }
 
 function addTopLevelNote(e) {
-  // console.log(e.target);
   addNoteFormToDOM(e.target);
   formHandler(e.target);
 }
@@ -331,11 +315,14 @@ function addNoteToDOM(container, note) {
       const submit = document.createElement('input');
       newNoteText.type = 'text';
       newNoteText.id = 'new-note-text';
+      newNoteText.style.width = '400px';
       submit.type = 'submit';
       submit.name = 'submit';
       form.append(newNoteText);
       form.append(submit);
       noteLi.insertBefore(form, noteLi.querySelectorAll('ul')[0]);
+      newNoteText.focus();
+      newNoteText.select();
     }
   }
 
