@@ -325,6 +325,7 @@ function addNoteToDOM(container, note) {
     if(noteLi.querySelector('form')) {
       noteLi.removeChild(document.querySelector('form'));
     } else {
+      if(document.querySelector('form')) document.querySelector('form').parentNode.removeChild(document.querySelector('form'));
       const form = document.createElement('form');
       const newNoteText = document.createElement('input');
       const submit = document.createElement('input');
