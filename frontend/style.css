@@ -2,10 +2,12 @@
   font-family: MarsdenCondensedHeavy;
   src: url(./fonts/MarsdenCondensedHeavy.otf)
 }
+@import url('https://fonts.googleapis.com/css?family=Caveat+Brush|Just+Another+Hand&display=swap');
 
 body {
   background-image: url(./images/cocktail_napkin.jpg);
   font-family: MarsdenCondensedHeavy;
+  /* font-family: 'Just Another Hand', cursive; */
 }
 
 .sidebar {
@@ -44,6 +46,8 @@ body {
   padding-left:50px;
   padding-top: 30px;
   padding-bottom: 30px;
+  font-family: 'Caveat Brush', cursive;
+  /* font-size: 20px; */
 }
 
 #topics-header {
