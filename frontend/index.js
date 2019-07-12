@@ -85,15 +85,24 @@ function loggedIn() {
     .then(topic => addNotesToDOM(e, topic))
   }
 
-  function deleteTopic(e, topicId) {
+  function deleteTopic(e) {
+    const topicId = e.target.dataset.id
     if (e.target.id === "delete-topic") {
       fetch(`http://localhost:3000/topics/${topicId}`, {
         method: 'DELETE'
       })
-      debugger
+      // topicsList.childNodes.find(child => {
+        // debugger
 
-    }
+      // })
+      .then(() => {
+      fetchMyTopics()
+      topicDeleteBtn.style.display = "none"
+      e.path[1].previousElementSibling.innerHTML =' '
+      e.path[2].children[0].innerText =' '
+    })
   }
+}
 
   function postTopic(e) {
     e.preventDefault()
@@ -119,6 +128,7 @@ function loggedIn() {
 
     function fetchNotes(e) {
       fetch(`http://localhost:3000/notes`).then(resp => resp.json()).then(notes => {
+        notesContainer.style.border = "1px solid rgba(0, 0, 0, 0.3)";
         const filteredNotes = notes.filter(note => note.topic_id == +e.target.id.split('-')[1]);
         filteredNotes.sort((a,b) => a.id - b.id).forEach(note => {
           if(!note.ancestry) {
@@ -144,6 +154,7 @@ function loggedIn() {
   })
 
   sidebar.addEventListener('click', sidebarClickHandler);
+
   function sidebarClickHandler(e) {
     if (e.target.id === "switch-topics") {
       switchSidebarTopics(e)
@@ -154,7 +165,7 @@ function loggedIn() {
   // --
   notesContainer.addEventListener('click', noteClickHandler);
 
-  topicDeleteBtn.addEventListener('click', console.log) // here here here
+  topicDeleteBtn.addEventListener('click', deleteTopic) // here here here
 
   // -- modal events
   newTopicAnchor.addEventListener('click', e => {
@@ -201,12 +212,12 @@ function loggedIn() {
     }
 
   function addNotesToDOM(e, topicData) {
-    // const topicId = +e.target.id.split('-')[1];
+    currentTopic = +e.target.id.split('-')[1];
     // fetchOneTopic(topicId).then(topic => {currentTopic = topic})
     document.querySelector('h1').innerHTML = topicData.title;
     if (topicData.user.id === currentUser.id) {
       topicDeleteBtn.style.display = "block"
-      // deleteTopic(e, topicData.id))
+      topicDeleteBtn.dataset.id = topicData.id
     } else {
       topicDeleteBtn.style.display = "none"
     }
@@ -227,7 +238,7 @@ function postNote(e, curForm) {
     },
     body: JSON.stringify({
       content: e.target.querySelector("#new-note-text").value,
-      topic_id: currentTopic.id,
+      topic_id: currentTopic,
       ancestry: e.target.parentNode.tagName === 'LI' ? (/\d+/.test(e.target.parentNode.getAttribute('ancestry')) ? e.target.parentNode.getAttribute('ancestry') + '/' + e.target.parentNode.id : e.target.parentNode.id.toString()) : null
     })
   }).then(resp => resp.json()).then(data => {
@@ -252,7 +263,7 @@ function formHandler(el) {
 }
 
 function addTopLevelNote(e) {
-  console.log(e.target);
+  // console.log(e.target);
   addNoteFormToDOM(e.target);
   formHandler(e.target);
 }
